@@ -1,0 +1,50 @@
+# Environment / secrets
+.env
+.env.*
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*draft.md
+# Virtual environments
+.venv/
+venv/
+ENV/
+*.mp3
+# Packaging / install artifacts
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# Test / coverage / type checkers
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors / OS
+.DS_Store
+*.swp
+*~
+
+# Cursor / SpecStory
+.specstore/
+.specstory/
+
+# Local drafts (optional)
+*draf.md

@@ -1,0 +1,31 @@
+[project]
+name = "tonellm"
+version = "0.1.0"
+description = "Tone LLM — generate Polychrome DSP presets for any artist/song via LLM"
+requires-python = ">=3.11"
+dependencies = [
+    "ollama>=0.4.0",
+    "pydantic>=2.6",
+    "typer>=0.12",
+    "python-dotenv>=1.0",
+    # Audio analysis (-ref). librosa pulls numpy, scipy, soundfile.
+    "librosa>=0.10",
+    "numba>=0.60,<0.65",  # avoid numba 0.65+ / llvmlite 0.47 source builds on macOS arm64
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+ui = ["streamlit>=1.30"]
+
+[project.scripts]
+tonellm = "tonellm.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tonellm = ["templates/*.pdpreset", "prompts/*.md"]
