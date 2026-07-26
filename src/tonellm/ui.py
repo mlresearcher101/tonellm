@@ -46,7 +46,7 @@ def main() -> None:
         query = st.text_input(
             "Tone request",
             placeholder="Alex Skolnick Testament Lies lead",
-            help="Artist, song, part, and style — same as the CLI query argument.",
+            help="Artist, song, part, and style, same as the CLI query argument.",
         )
         col_g, col_t = st.columns(2)
         with col_g:

@@ -4,9 +4,13 @@ Pure and deterministic. Loads templates/base.pdpreset, overrides only the
 attributes implied by the descriptor, writes the result. Anything not
 mentioned in the descriptor is inherited from the base template, which
 keeps us forward-compatible with future Polychrome versions.
+
+Plugin-specific mappings (cab slots, delay subdivisions, reverb models) are
+loaded from a private config file outside the repository.
 """
 from __future__ import annotations
 
+import json
 import xml.etree.ElementTree as ET
 from importlib.resources import files
 from pathlib import Path
@@ -19,25 +23,10 @@ from .descriptor import (
     ReverbType,
     ToneDescriptor,
 )
+from .private_assets import resolve_private_path
 
-# Polychrome stores cab IRs as integer slot indexes. These mappings are
-# the user's best-guess starting points - refine after auditioning each slot.
-# TODO(user): audition slots in Polychrome and confirm/correct.
-CAB_SLOT_MAP: dict[CabArchetype, int] = {
-    CabArchetype.v30_4x12: 4,
-    CabArchetype.greenback_4x12: 1,
-    CabArchetype.g12_65_4x12: 2,
-    CabArchetype.g12h_4x12: 3,
-    CabArchetype.fender_2x12: 5,
-    CabArchetype.tweed_1x12: 6,
-}
+DEFAULT_MAPPINGS_PATH = Path.home() / ".config" / "tonellm" / "mappings.json"
 
-AMP_CHANNEL_INDEX: dict[AmpChannel, int] = {
-    AmpChannel.acoustic: 0,
-    AmpChannel.clean: 1,
-    AmpChannel.edge: 2,
-    AmpChannel.gain: 3,
-}
 
 # Per-channel knob attribute prefixes in the XML.
 # acoustic=AC, clean=CA, edge=CB, gain=GA
@@ -49,34 +38,48 @@ CHANNEL_PREFIX: dict[AmpChannel, str] = {
 }
 
 
+def _load_mappings() -> dict:
+    """Load cab/amp/delay/reverb mappings from a private config file.
+
+    Resolution order:
+    1. TONELLM_MAPPINGS env var (path)
+    2. ~/.config/tonellm/mappings.json
+
+    The public repo intentionally does not ship these mappings, since the
+    best-guess slot numbers are hard-won tone knowledge.
+    """
+    mappings_path = resolve_private_path(
+        env_var="TONELLM_MAPPINGS",
+        default=DEFAULT_MAPPINGS_PATH,
+        label="mappings",
+    )
+    return json.loads(mappings_path.read_text(encoding="utf-8"))
+
+
+# Load private mappings once at module import time. The translator is
+# deterministic; reloading on every call is unnecessary overhead.
+_MAPPINGS = _load_mappings()
+
+CAB_SLOT_MAP: dict[CabArchetype, int] = {
+    CabArchetype[name]: value for name, value in _MAPPINGS["cab_slot_map"].items()
+}
+
+AMP_CHANNEL_INDEX: dict[AmpChannel, int] = {
+    AmpChannel[name]: value for name, value in _MAPPINGS["amp_channel_index"].items()
+}
+
+
 def _f(v: float) -> str:
     """Polychrome stores floats as raw decimals - match that style."""
     return f"{v:.10f}"
 
 
 def _delay_time_for_role(role: DelayRole) -> float:
-    # Sync mode in most plugins steps through discrete note divisions across
-    # the 0-1 range, ordered slowest -> fastest. Best-guess mapping assuming
-    # ~9 stops: whole, dotted-half, half, dotted-quarter, quarter, dotted-8th,
-    # 8th, dotted-16th, 16th. Refine after auditioning Polychrome's sync knob.
-    return {
-        DelayRole.off: 0.5,
-        DelayRole.slap: 0.875,        # ~dotted-16th, fast single repeat
-        DelayRole.quarter: 0.5,       # noon
-        DelayRole.dotted_eighth: 0.625,  # The Edge / U2 territory
-        DelayRole.ambient: 0.25,      # ~half note, slow washes
-    }[role]
+    return _MAPPINGS["delay_time_for_role"][role.value]
 
 
 def _reverb_model_for_type(rt: ReverbType) -> int:
-    # Polychrome reverb model slot per type. Refine after auditioning.
-    return {
-        ReverbType.off: 0,
-        ReverbType.plate: 1,
-        ReverbType.room: 0,
-        ReverbType.hall: 2,
-        ReverbType.space: 2,
-    }[rt]
+    return _MAPPINGS["reverb_model_for_type"][rt.value]
 
 
 def _apply_boost(root: ET.Element, d: ToneDescriptor) -> None:

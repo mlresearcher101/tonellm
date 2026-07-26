@@ -43,8 +43,12 @@ htmlcov/
 *~
 
 # Cursor / SpecStory
-.specstore/
 .specstory/
+
+# Private tonellm assets (open-core model)
+~/.config/tonellm/
+*.private.json
+*.private.md
 
 # Local drafts (optional)
 *draf.md

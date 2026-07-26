@@ -1,0 +1,30 @@
+{
+  "cab_slot_map": {
+    "v30_4x12": 4,
+    "greenback_4x12": 1,
+    "g12_65_4x12": 2,
+    "g12h_4x12": 3,
+    "fender_2x12": 5,
+    "tweed_1x12": 6
+  },
+  "amp_channel_index": {
+    "acoustic": 0,
+    "clean": 1,
+    "edge": 2,
+    "gain": 3
+  },
+  "delay_time_for_role": {
+    "off": 0.5,
+    "slap": 0.875,
+    "quarter": 0.5,
+    "dotted_eighth": 0.625,
+    "ambient": 0.25
+  },
+  "reverb_model_for_type": {
+    "off": 0,
+    "plate": 1,
+    "room": 0,
+    "hall": 2,
+    "space": 2
+  }
+}

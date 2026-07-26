@@ -4,16 +4,21 @@ literally cannot return malformed JSON. I had mixed results with other models so
 """
 from __future__ import annotations
 
+import json
 import os
 import re
-from importlib.resources import files
+from pathlib import Path
 
 from dotenv import load_dotenv
 from ollama import Client
 
 from .descriptor import ToneDescriptor
+from .private_assets import resolve_private_path
 
 load_dotenv()
+
+
+DEFAULT_SYSTEM_PROMPT_PATH = Path.home() / ".config" / "tonellm" / "prompts" / "tone_system.md"
 
 
 def _extract_json(text: str) -> str:
@@ -33,7 +38,21 @@ def _extract_json(text: str) -> str:
 
 
 def _load_system_prompt() -> str:
-    return files("tonellm.prompts").joinpath("tone_system.md").read_text(encoding="utf-8")
+    """Load the tone-engineering system prompt from a private source.
+
+    Resolution order:
+    1. TONELLM_SYSTEM_PROMPT env var (path or https URL)
+    2. ~/.config/tonellm/prompts/tone_system.md
+
+    Raises FileNotFoundError if none are available, since the public repo
+    intentionally does not ship the prompt.
+    """
+    prompt_path = resolve_private_path(
+        env_var="TONELLM_SYSTEM_PROMPT",
+        default=DEFAULT_SYSTEM_PROMPT_PATH,
+        label="system prompt",
+    )
+    return prompt_path.read_text(encoding="utf-8")
 
 
 def _client() -> Client:

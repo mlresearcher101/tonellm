@@ -113,9 +113,9 @@ def ui(
         "streamlit",
         "run",
         str(ui_path),
-        "-server.port",
+        "--server.port",
         str(port),
-        "-server.headless",
+        "--server.headless",
         "true",
     ]
     typer.echo(f"Starting UI at http://localhost:{port}")
