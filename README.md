@@ -195,7 +195,7 @@ Open an issue to discuss bigger changes, or send a PR for focused fixes. Run `uv
 
 ## License
 
-[MIT](LICENSE) © Vishwanath Subramanian
+[MIT](LICENSE) 
 
 ---
 
@@ -203,4 +203,4 @@ Open an issue to discuss bigger changes, or send a PR for focused fixes. Run `uv
 
 Tone LLM was built to turn text and reference recordings into usable guitar tones without menu diving. It is part of the VToneLab project.
 
-More samples and walkthroughs on YouTube: [youtube.com/@vtonelab](https://www.youtube.com/@vtonelab)
+More samples and walkthroughs on YouTube: [youtube.com/@tonegrad](https://www.youtube.com/@tonegrad)
